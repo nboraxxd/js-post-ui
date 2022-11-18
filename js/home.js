@@ -1,31 +1,41 @@
 import postApi from './api/postApi'
-import { setTextContent } from './utils'
+import { setTextContent, truncateText } from './utils'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+// to use fromNow func
+dayjs.extend(relativeTime)
 
 function createPostElement(post) {
   if (!post) return
 
-  try {
-    // find and clone template
-    const postTemplate = document.getElementById('postTemplate')
-    if (!postTemplate) return
+  // find and clone template
+  const postTemplate = document.getElementById('postTemplate')
+  if (!postTemplate) return
 
-    const liElement = postTemplate.content.firstElementChild.cloneNode(true)
-    if (!liElement) return
+  const liElement = postTemplate.content.firstElementChild.cloneNode(true)
+  if (!liElement) return
 
-    // update title, description, author, thumbnail
-    setTextContent(liElement, '[data-id="title"]', post.title)
-    setTextContent(liElement, '[data-id="description"]', post.description)
-    setTextContent(liElement, '[data-id="author"]', post.author)
+  // update title, description, author, thumbnail
+  setTextContent(liElement, '[data-id="title"]', post.title)
+  setTextContent(liElement, '[data-id="description"]', truncateText(post.description, 100))
+  setTextContent(liElement, '[data-id="author"]', post.author)
 
-    const thumbnailElement = liElement.querySelector('[data-id="thumbnail"]')
-    if (thumbnailElement) thumbnailElement.src = post.imageUrl
+  // calculate timespan
+  setTextContent(liElement, '[data-id="timeSpan"]', ` - ${dayjs(post.updatedAt).fromNow()}`)
 
-    // TODO: attach event
+  const thumbnailElement = liElement.querySelector('[data-id="thumbnail"]')
+  if (thumbnailElement) {
+    thumbnailElement.src = post.imageUrl
 
-    return liElement
-  } catch (error) {
-    console.log('failed to create post item', error)
+    thumbnailElement.addEventListener('error', () => {
+      thumbnailElement.src = 'https://via.placeholder.com/1368x400?text=thumbnail'
+    })
   }
+
+  // TODO: attach event
+
+  return liElement
 }
 
 function renderPostList(postList) {
