@@ -1,6 +1,6 @@
-import axiosClient from './students'
+import axiosClient from './axiosClient'
 
-const postApi = {
+const studentApi = {
   getAll(params) {
     const url = '/students'
     return axiosClient.get(url, { params })
@@ -21,10 +21,11 @@ const postApi = {
     return axiosClient.patch(url, data)
   },
 
+
   remove(id) {
     const url = `/students/${id}`
     return axiosClient.delete(url)
   },
 }
 
-export default postApi
+export default studentApi
