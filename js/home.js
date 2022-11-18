@@ -49,6 +49,26 @@ function renderPostList(postList) {
   })
 }
 
+function renderPagination(pagination) {
+  const ulPagination = document.getElementById('pagination')
+  if (!pagination || !ulPagination) return
+  const { _page, _limit, _totalRows } = pagination
+
+  // calc totalPages
+  const totalPages = Math.ceil(_totalRows / _limit)
+
+  // save page and totalPages to ulPagination
+  ulPagination.dataset.page = _page
+  ulPagination.dataset.totalPages = totalPages
+
+  // check if enable/disable prev/next links
+  if (_page <= 1) ulPagination.firstElementChild?.classList.add('disabled')
+  else ulPagination.firstElementChild?.classList.remove('disabled')
+
+  if (_page >= totalPages) ulPagination.lastElementChild?.classList.add('disabled')
+  else ulPagination.lastElementChild?.classList.remove('disabled')
+}
+
 function handleFilterChange(filterName, filterValue) {
   // update query params
   const url = new url(window.location)
@@ -104,8 +124,8 @@ function initURL() {
 
     const queryParams = new URLSearchParams(window.location.search)
     const { data, pagination } = await postApi.getAll(queryParams)
-
     renderPostList(data)
+    renderPagination(pagination)
   } catch (error) {
     console.log('get all failed', error)
     // show modal, toast error
